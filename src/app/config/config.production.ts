@@ -6,7 +6,7 @@ import { AppConfig } from './app-config.model';
  */
 export const productionConfig: Omit<AppConfig, 'production'> = {
   name: 'production',
-  apiBaseUrl: 'https://api.tayn.ae/api',
+  apiBaseUrl: 'https://tayn-backend.onrender.com/api',
   currency: 'AED',
   enableDebugLogs: false,
   minStartLeadDays: 2,
