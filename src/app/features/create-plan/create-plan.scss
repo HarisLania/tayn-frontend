@@ -1,0 +1,189 @@
+.wizard {
+  background: var(--tayn-amber-050);
+  padding-block: 40px 80px;
+  min-height: 80vh;
+}
+
+/* Returned from Stripe without paying. Reassure, don't alarm. */
+.checkout-cancelled {
+  background: #fff; border: 1px solid var(--line-strong); border-radius: var(--r-md);
+  padding: 14px 18px; margin-bottom: 24px; font-size: 0.92rem; color: var(--ink-700);
+}
+
+/* ---- Stepper ---- */
+/* Connectors flex to fill the row, so the stepper always spans the container
+   width evenly and never needs a horizontal scrollbar. */
+.stepper {
+  display: flex; align-items: center; gap: 0;
+  list-style: none; margin: 0 0 32px; padding: 0;
+}
+.step-item {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--ink-300); min-width: 0;
+}
+.step-item:not(:last-child) { flex: 1 1 0; }
+.step-dot {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: #fff; border: 1px solid var(--line-strong);
+  font-size: 0.82rem; font-weight: 600; color: var(--ink-400);
+  flex-shrink: 0;
+}
+.step-label {
+  font-size: 0.82rem; font-weight: 500;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.step-line { flex: 1 1 auto; min-width: 12px; height: 2px; background: var(--line-strong); margin-inline: 10px; }
+.step-item.active .step-dot { background: var(--tayn-amber); border-color: var(--tayn-amber); color: var(--ink-900); }
+.step-item.active .step-label { color: var(--ink-900); }
+.step-item.done .step-dot { background: var(--ink-900); border-color: var(--ink-900); color: #fff; }
+.step-item.done .step-label { color: var(--ink-900); }
+.step-item.done .step-line { background: var(--tayn-amber); }
+
+/* ---- Layout ---- */
+.wizard-grid { display: grid; grid-template-columns: 1fr 360px; gap: 24px; align-items: start; }
+.wizard-panel { padding: 40px; }
+.wizard-panel h2 { font-size: clamp(1.6rem, 3vw, 2rem); }
+.panel-sub { color: var(--ink-500); margin: 10px 0 28px; }
+
+/* ---- Step 1: plan choices ---- */
+.plan-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.choice-card {
+  position: relative; text-align: left;
+  background: #fff; border: 1px solid var(--line-strong);
+  border-radius: var(--r-md); padding: 24px; cursor: pointer;
+  display: flex; flex-direction: column; gap: 10px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.choice-card:hover { border-color: var(--ink-400); }
+.choice-card.selected { border-color: var(--tayn-amber); background: var(--tayn-amber-050); }
+.choice-check {
+  position: absolute; top: 20px; right: 20px;
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 1.5px solid var(--line-strong); background: #fff;
+  display: grid; place-items: center; font-size: 0.8rem; color: #fff;
+}
+.choice-check.on { background: var(--tayn-amber); border-color: var(--tayn-amber); color: var(--ink-900); }
+.choice-card h3 { font-size: 1.2rem; }
+.choice-desc { color: var(--ink-500); font-size: 0.88rem; line-height: 1.5; }
+.choice-macros { display: flex; gap: 8px; flex-wrap: wrap; }
+.choice-macros .pill { background: #fff; border: 1px solid var(--line); font-size: 0.75rem; }
+.choice-card.selected .choice-macros .pill { background: #fff; }
+.choice-price { font-size: 0.92rem; color: var(--ink-500); }
+.choice-price strong { font-family: var(--font-head); font-size: 1.15rem; color: var(--ink-900); }
+
+/* ---- Step 2: features ---- */
+.feature-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.feature-list li { display: flex; gap: 16px; background: var(--surface-alt); border-radius: var(--r-md); padding: 18px 20px; }
+.feature-check {
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+  display: grid; place-items: center;
+  background: var(--tayn-amber); color: var(--ink-900); font-weight: 700; font-size: 0.8rem;
+}
+.feature-copy { display: flex; flex-direction: column; gap: 4px; }
+.feature-copy strong { font-size: 1rem; }
+.feature-copy small { color: var(--ink-500); font-size: 0.88rem; line-height: 1.5; }
+.feature-note {
+  margin-top: 20px; padding: 16px 20px;
+  background: var(--tayn-mint); border-radius: var(--r-md);
+  font-size: 0.92rem; color: #0b5a5f;
+}
+
+/* ---- Step 3: dates ---- */
+.date-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }
+.date-cell {
+  position: relative; background: #fff; border: 1px solid var(--line-strong);
+  border-radius: var(--r-md); padding: 18px 6px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.date-cell:hover { border-color: var(--ink-400); }
+.date-cell.selected { border-color: var(--tayn-amber); background: var(--tayn-amber-050); }
+.date-weekday { font-size: 0.72rem; color: var(--ink-400); }
+.date-day { font-family: var(--font-head); font-size: 1.35rem; }
+.date-month { font-size: 0.72rem; color: var(--ink-400); }
+.date-earliest { color: var(--tayn-amber-600); font-size: 0.66rem; font-weight: 600; margin-top: 2px; }
+
+/* ---- Step 4: days ---- */
+.days-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }
+.day-toggle {
+  padding: 22px 6px; border-radius: var(--r-md);
+  border: 1px solid var(--line-strong); background: #fff;
+  font-family: var(--font-head); font-weight: 600; font-size: 0.95rem; color: var(--ink-700);
+  transition: all 0.15s ease;
+}
+.day-toggle:hover { border-color: var(--ink-400); }
+.day-toggle.on { background: var(--tayn-amber); border-color: var(--tayn-amber); color: var(--ink-900); }
+.days-summary {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 20px; padding: 18px 20px;
+  background: var(--tayn-mint); border-radius: var(--r-md); color: #0b5a5f;
+}
+.days-summary strong small { font-weight: 500; opacity: 0.8; }
+.panel-note {
+  margin-top: 20px; padding: 14px 18px;
+  background: var(--surface-alt); border-radius: var(--r-md);
+  font-size: 0.9rem; color: var(--ink-700);
+}
+
+/* ---- Step 5: details form ---- */
+.details-form { display: flex; flex-direction: column; gap: 20px; }
+.form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.phone-input { display: flex; }
+.phone-prefix {
+  display: grid; place-items: center; padding-inline: 16px;
+  background: var(--surface-alt); border: 1px solid var(--line-strong); border-right: none;
+  border-radius: var(--r-md) 0 0 var(--r-md); color: var(--ink-500); font-size: 0.9rem;
+}
+.phone-input .input { border-radius: 0 var(--r-md) var(--r-md) 0; }
+
+/* ---- Step 6: review ---- */
+.review-box { background: var(--surface-alt); border-radius: var(--r-md); padding: 8px 24px; }
+.review-row { display: flex; justify-content: space-between; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.review-row:last-child { border-bottom: none; }
+.review-row span { color: var(--ink-500); }
+.review-row strong { text-align: right; }
+.payment-box { margin-top: 24px; border: 1px solid var(--line); border-radius: var(--r-md); padding: 24px; display: flex; flex-direction: column; gap: 12px; }
+.secure-note { color: var(--ink-400); font-size: 0.82rem; }
+.confirm-btn { margin-top: 24px; padding-block: 18px; font-size: 1rem; }
+
+/* ---- Panel nav ---- */
+.panel-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--line);
+}
+.nav-back { background: none; border: none; color: var(--ink-700); font-size: 0.95rem; font-weight: 500; }
+.nav-back:hover { color: var(--ink-900); }
+
+/* ---- Sidebar ---- */
+.summary { padding: 28px; background: var(--tayn-mint); border-color: transparent; position: sticky; top: 96px; }
+.summary .card-label { color: #0b5a5f; opacity: 0.7; }
+.summary-plan { margin-bottom: 18px; }
+.summary-plan h3 { font-size: 1.3rem; }
+.summary-plan small { color: #0b5a5f; opacity: 0.8; font-size: 0.82rem; }
+.summary-line { display: flex; justify-content: space-between; padding: 8px 0; font-size: 0.92rem; }
+.summary-line span { color: #0b5a5f; opacity: 0.85; }
+.summary-line.discount strong { color: #0a7d3b; }
+.summary-div { height: 1px; background: rgba(11, 90, 95, 0.15); margin: 12px 0; }
+.summary-total { margin-top: 16px; }
+.summary-total strong { font-family: var(--font-head); font-size: 2rem; display: block; }
+.total-suffix { color: #0b5a5f; opacity: 0.7; font-size: 0.85rem; }
+.summary-empty { padding: 12px 0; }
+.summary-badge {
+  margin-top: 20px; background: rgba(255, 255, 255, 0.6);
+  border-radius: var(--r-sm); padding: 14px 16px;
+  font-size: 0.82rem; color: #0b5a5f; line-height: 1.5;
+}
+
+@media (max-width: 980px) {
+  .wizard-grid { grid-template-columns: 1fr; }
+  .summary { position: static; order: -1; }
+  /* Collapse to a compact dots-only progress track. The panel heading names
+     the current step, so labels here would only force a horizontal scroll. */
+  .step-label { display: none; }
+}
+@media (max-width: 680px) {
+  .plan-choices, .form-2col { grid-template-columns: 1fr; }
+  .date-grid, .days-row { grid-template-columns: repeat(4, 1fr); }
+  .wizard-panel { padding: 24px; }
+}

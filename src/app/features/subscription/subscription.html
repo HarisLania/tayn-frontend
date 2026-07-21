@@ -1,0 +1,199 @@
+@if (subscription(); as sub) {
+  <section class="sub-page">
+    <div class="container">
+      @if (justSubscribed) {
+        <p class="checkout-success">
+          You're all set. Your plan is confirmed and your first cycle is paid. Your
+          deliveries are scheduled below.
+        </p>
+      }
+
+      <div class="sub-head">
+        <div>
+          <span class="eyebrow">My subscription</span>
+          <h1>Hey, {{ (displayName() || 'there').split(' ')[0] }}.</h1>
+        </div>
+        <div class="user-card">
+          <span class="user-avatar">{{ (displayName() || 'U').charAt(0) }}</span>
+          <span class="user-meta">
+            <strong>{{ displayName() || 'Tayn Member' }}</strong>
+            <small>{{ user()?.email }}</small>
+          </span>
+        </div>
+      </div>
+
+      @if (statusCopy(); as st) {
+        <p class="status-banner" [class]="'status-' + sub.status">
+          <strong>{{ st.label }}</strong> · {{ st.note }}
+        </p>
+      }
+
+      <div class="top-grid">
+        <div class="card next-delivery">
+          <span class="card-label">Next delivery</span>
+          <div class="delivery-row">
+            <div class="day-box">
+              <strong>{{ daysUntil() }}</strong>
+              <span>{{ daysUntil() === 1 ? 'day' : 'days' }}</span>
+            </div>
+            <div class="delivery-info">
+              <h2>{{ nextDelivery() | date: 'EEEE, d MMMM' }}</h2>
+              <p class="text-muted">
+                {{ daysUntil() === 1 ? 'Tomorrow' : (daysUntil() === 0 ? 'Today' : 'In ' + daysUntil() + ' days') }}
+                · Arrives by 7am
+              </p>
+            </div>
+          </div>
+          <div class="schedule">
+            @for (d of weekdays; track d.code) {
+              @if (isDeliveryDay(d.code)) { <span class="day-pill active">{{ d.label }}</span> }
+            }
+            <span class="schedule-note text-muted">
+              {{ sub.meals_per_week }} meals/week · {{ sub.meals_per_cycle }} per cycle
+            </span>
+          </div>
+        </div>
+
+        <div class="card current-plan">
+          <span class="card-label">Current plan</span>
+          <h2>{{ sub.plan.category.name }}</h2>
+          <p class="billing-type text-muted">
+            AED {{ +sub.plan.price_per_meal | number: '1.0-2' }} per meal ·
+            billed every {{ cycleWeeks }} weeks
+          </p>
+          @if (sub.current_period_end) {
+            <div class="next-billing">
+              <span class="card-label">{{ sub.cancel_at_period_end ? 'Active until' : 'Next billing' }}</span>
+              <strong>{{ sub.current_period_end | date: 'd MMMM y' }}</strong>
+            </div>
+          }
+          <div class="plan-amount">
+            <strong>AED {{ +sub.price_per_cycle | number: '1.0-0' }}</strong>
+            <span>/{{ cycleWeeks }} weeks</span>
+          </div>
+          <p class="amount-note text-muted">
+            {{ sub.meals_per_cycle }} meals × AED {{ +sub.plan.price_per_meal | number: '1.0-2' }},
+            the same every cycle.
+          </p>
+        </div>
+      </div>
+
+      <!-- Delivery schedule for the current 28-day cycle -->
+      <div class="card schedule-card">
+        <div class="card-head">
+          <span class="card-label">This cycle's deliveries</span>
+          @if (!editingDays() && sub.status !== 'canceled') {
+            <button type="button" class="link-btn" (click)="startEditingDays()">Change days</button>
+          }
+        </div>
+
+        @if (editingDays()) {
+          <p class="text-muted">
+            Pick the days you want meals. Changing how many days you eat changes the meal
+            count, so we prorate the difference against the current cycle.
+          </p>
+          <div class="days-row">
+            @for (d of weekdays; track d.code) {
+              <button type="button" class="day-toggle" [class.on]="draftDays().includes(d.code)"
+                      (click)="toggleDraftDay(d.code)">{{ d.label }}</button>
+            }
+          </div>
+          @if (proration() !== null) {
+            <p class="proration-note">
+              @if (proration()! > 0) {
+                Switching now adds <strong>AED {{ proration() | number: '1.2-2' }}</strong> to your next invoice.
+              } @else if (proration()! < 0) {
+                You'll be credited <strong>AED {{ -proration()! | number: '1.2-2' }}</strong> on your next invoice.
+              } @else {
+                Same number of days, so nothing changes on your bill.
+              }
+            </p>
+          }
+          @if (daysError()) { <p class="field-error">{{ daysError() }}</p> }
+          <div class="days-actions">
+            <button type="button" class="btn btn-outline" [disabled]="savingDays() || !draftChanged() || !draftDays().length"
+                    (click)="previewDays()">Preview cost</button>
+            <button type="button" class="btn btn-primary" [disabled]="savingDays() || !draftChanged() || !draftDays().length"
+                    (click)="saveDays()">{{ savingDays() ? 'Saving…' : 'Save days' }}</button>
+            <button type="button" class="link-btn" (click)="cancelEditingDays()">Cancel</button>
+          </div>
+        } @else {
+          <ul class="delivery-dates">
+            @for (d of upcoming(); track d) {
+              <li><span class="dot"></span>{{ d | date: 'EEE, d MMM' }}</li>
+            } @empty {
+              <li class="text-muted">No further deliveries in this cycle.</li>
+            }
+          </ul>
+        }
+      </div>
+
+      <div class="card payments">
+        <span class="card-label">Payment history</span>
+        <ul class="payment-list">
+          @for (inv of invoices(); track inv.id) {
+            <li>
+              <span class="pay-icon">🧾</span>
+              <span class="pay-meta">
+                <strong>{{ sub.plan.category.name }} · {{ inv.created_at | date: 'MMMM y' }}</strong>
+                <small>{{ inv.created_at | date: 'd MMM y' }}</small>
+              </span>
+              <span class="pay-right">
+                <strong>AED {{ +inv.amount | number: '1.2-2' }}</strong>
+                <span class="paid-badge" [class.unpaid]="inv.status !== 'paid'">
+                  {{ inv.status === 'paid' ? '✓ Paid' : inv.status }}
+                </span>
+              </span>
+            </li>
+          } @empty {
+            <li class="text-muted no-pay">No payments yet.</li>
+          }
+        </ul>
+      </div>
+
+      <div class="actions-grid">
+        <div class="card action-card">
+          <h3>Change Plan</h3>
+          <p class="text-muted">
+            Switch to a different meal program at any time. Your meal count stays the same.
+            Only the per-meal rate changes, and we prorate the remaining days.
+          </p>
+          <a routerLink="/create-plan" class="btn btn-primary">View Plan Options</a>
+        </div>
+
+        <div class="card action-card">
+          <h3>Cancel Subscription</h3>
+          <p class="text-muted">
+            Your plan will remain <strong>fully active</strong> until
+            <strong>{{ sub.current_period_end | date: 'd MMMM y' }}</strong>, so you receive every meal
+            in the cycle you've paid for. No further charges after that date, and no refund for the
+            current cycle.
+          </p>
+          @if (sub.cancel_at_period_end || sub.status === 'canceled') {
+            <span class="cancelled-note">Subscription set to cancel at period end.</span>
+          } @else {
+            <button type="button" class="btn btn-outline" [disabled]="canceling()" (click)="cancel()">
+              {{ canceling() ? 'Canceling…' : 'Cancel Subscription' }}
+            </button>
+            @if (cancelError()) { <p class="field-error">{{ cancelError() }}</p> }
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+} @else {
+  <section class="sub-page">
+    <div class="container empty-state">
+      @if (loading()) {
+        <h2>Loading your subscription…</h2>
+      } @else if (loadError()) {
+        <h2>We couldn't load your subscription</h2>
+        <p class="text-muted">Something went wrong on our end. Please refresh and try again.</p>
+      } @else {
+        <h2>No active subscription</h2>
+        <p class="text-muted">You don't have an active plan yet.</p>
+        <a routerLink="/create-plan" class="btn btn-primary">Create My Plan</a>
+      }
+    </div>
+  </section>
+}

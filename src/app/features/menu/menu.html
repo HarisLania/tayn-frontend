@@ -1,0 +1,66 @@
+<section class="menu-hero">
+  <div class="container menu-hero-inner">
+    <div>
+      <span class="eyebrow">Weekly menu</span>
+      <h1>What's on the menu.</h1>
+      <p class="text-muted">
+        Chef-crafted dishes rotated weekly. {{ meals().length }} recipes this week, all UAE-sourced and halal-certified.
+      </p>
+    </div>
+    <a routerLink="/create-plan" class="btn btn-primary">Start My Plan →</a>
+  </div>
+</section>
+
+<section class="menu-body">
+  <div class="container">
+    <div class="filters">
+      <div class="filter-row">
+        @for (tab of categoryTabs; track tab.id) {
+          <button type="button" class="tab" [class.active]="categoryFilter() === tab.id"
+                  (click)="setCategory(tab.id)">{{ tab.label }}</button>
+        }
+      </div>
+      <div class="filter-row filter-row--sub">
+        <div class="cat-tabs">
+          @for (tab of typeTabs; track tab.id) {
+            <button type="button" class="chip-tab" [class.active]="typeFilter() === tab.id"
+                    (click)="setType(tab.id)">{{ tab.label }}</button>
+          }
+        </div>
+        <span class="count text-muted">{{ filtered().length }} items</span>
+      </div>
+    </div>
+
+    <div class="menu-grid">
+      @for (meal of filtered(); track meal.id) {
+        <article class="meal-card">
+          <div class="meal-media">
+            <img [src]="meal.image" [alt]="meal.name" loading="lazy" (error)="onImageError($event, meal)" />
+            <span class="meal-plan-tag" [attr.data-plan]="meal.category">{{ label(meal.category) }}</span>
+            <span class="meal-cat-tag">{{ meal.meal_type }}</span>
+          </div>
+          <div class="meal-body">
+            <h3>{{ meal.name }}</h3>
+            <p class="meal-desc">{{ meal.description }}</p>
+            <div class="meal-macros">
+              <span class="tag pill-amber">{{ meal.calories }} kcal</span>
+              <span class="tag pill-mint">{{ meal.protein_g }}g protein</span>
+            </div>
+          </div>
+        </article>
+      } @empty {
+        <p class="empty text-muted">No dishes match these filters.</p>
+      }
+    </div>
+  </div>
+</section>
+
+<section class="menu-cta">
+  <div class="container menu-cta-inner">
+    <div>
+      <h2>Ready to get started?</h2>
+      <p class="text-muted">New menu every week. Always fresh. Always delivered by 7am.</p>
+    </div>
+    <a routerLink="/create-plan" class="btn btn-primary">Create My Plan</a>
+  </div>
+</section>

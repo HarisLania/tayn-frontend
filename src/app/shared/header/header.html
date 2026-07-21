@@ -1,0 +1,29 @@
+<header class="site-header">
+  <div class="container header-inner">
+    <a routerLink="/" class="brand" aria-label="Tayn home">
+      <span class="brand-word">tayn</span><span class="brand-dot"></span>
+    </a>
+
+    <nav class="main-nav">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+      <a routerLink="/menu" routerLinkActive="active">Menu</a>
+
+      @if (isLoggedIn()) {
+        <a routerLink="/subscription" routerLinkActive="active">My Subscription</a>
+      } @else {
+        <a routerLink="/login" routerLinkActive="active">Log In</a>
+      }
+    </nav>
+
+    <div class="header-actions">
+      @if (isLoggedIn()) {
+        <div class="user-chip">
+          <span class="avatar">{{ (displayName() || 'U').charAt(0) }}</span>
+          <span class="user-name">{{ displayName() }}</span>
+        </div>
+        <button type="button" class="link-btn" (click)="logout()">Logout</button>
+      }
+      <a routerLink="/create-plan" class="btn btn-primary create-btn">Create My Plan</a>
+    </div>
+  </div>
+</header>

@@ -1,0 +1,24 @@
+.login-wrap {
+  max-width: 520px;
+  margin-inline: auto;
+  padding: 56px 24px 96px;
+}
+.login-head { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 36px; }
+.login-head h1 { font-size: clamp(2rem, 4vw, 2.8rem); }
+.login-card {
+  padding: 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.label-row { display: flex; align-items: center; justify-content: space-between; }
+.forgot { color: var(--tayn-amber-600); font-size: 0.82rem; font-weight: 500; }
+.login-alt {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  font-size: 0.9rem;
+  color: var(--ink-500);
+}
+.login-alt a { margin-left: 6px; font-weight: 600; }
+.demo-note { margin-top: 24px; font-size: 0.85rem; }

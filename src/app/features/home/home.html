@@ -1,0 +1,143 @@
+<!-- ===== Hero ===== -->
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <span class="pill pill-amber hero-eyebrow">● Premium meal plans · Delivered across UAE</span>
+      <h1 class="hero-title">
+        Fuel your body,<br />
+        <span class="text-amber">reclaim</span> your time.
+      </h1>
+      <p class="hero-sub">
+        Chef-prepared meals built around your goals, delivered fresh to your door before you wake up.
+        Choose your plan, pick your days, eat well.
+      </p>
+      <div class="hero-cta">
+        <a routerLink="/create-plan" class="btn btn-primary">Create My Plan</a>
+        <a routerLink="/menu" class="btn btn-outline">Explore Menu</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><strong>2,400+</strong><span>Active Subscribers</span></div>
+        <div class="divider"></div>
+        <div class="stat"><strong>48,000+</strong><span>Meals Delivered</span></div>
+        <div class="divider"></div>
+        <div class="stat"><strong>4.9 ★</strong><span>Average Rating</span></div>
+      </div>
+    </div>
+
+    <div class="hero-media">
+      <img
+        src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=75"
+        alt="Fresh chef-prepared bowl" loading="eager" />
+      <span class="badge-free">Free delivery<small>Across all UAE</small></span>
+      <div class="badge-highlight">
+        <span class="hl-label">TODAY'S HIGHLIGHT</span>
+        <strong>Seared Salmon Bowl</strong>
+        <div class="hl-macros">
+          <span class="tag pill-amber">380 kcal</span>
+          <span class="tag pill-mint">35g protein</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Delivery banner ===== -->
+<section class="delivery-banner">
+  <div class="container delivery-inner">
+    <strong>We deliver across:</strong>
+    <div class="delivery-cities">
+      @for (city of emirates; track city) {
+        <span class="city-pill">{{ city }}</span>
+      }
+    </div>
+    <em class="fresh-note">Fresh by 7am</em>
+  </div>
+</section>
+
+<!-- ===== How it works ===== -->
+<section class="section how">
+  <div class="container">
+    <div class="section-head center">
+      <span class="eyebrow">How it works</span>
+      <h2>From kitchen to doorstep,<br />seamlessly.</h2>
+    </div>
+    <div class="how-grid">
+      @for (step of steps; track step.num) {
+        <div class="how-card">
+          <div class="how-icon">{{ step.icon }}</div>
+          <span class="how-num">{{ step.num }}</span>
+          <h3>{{ step.title }}</h3>
+          <p>{{ step.text }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ===== Plans ===== -->
+<section class="section plans-section">
+  <div class="container">
+    <div class="section-head plans-head">
+      <div>
+        <span class="eyebrow">Our plans</span>
+        <h2>Eating right,<br />your way.</h2>
+      </div>
+      <a routerLink="/menu" class="see-menu">See full menu →</a>
+    </div>
+
+    <div class="plans-grid">
+      @for (plan of plans(); track plan.slug) {
+        <article class="plan-card">
+          <div class="plan-media">
+            <img [src]="plan.imageUrl" [alt]="plan.name" loading="lazy" />
+            @if (plan.badge) { <span class="plan-badge">{{ plan.badge }}</span> }
+          </div>
+          <div class="plan-body">
+            <h3>{{ plan.name }}</h3>
+            <p class="plan-desc">{{ plan.description }}</p>
+            <span class="plan-kcal">{{ plan.kcalRange }}</span>
+            <div class="plan-foot">
+              <span class="plan-price"><strong>AED {{ plan.pricePerMeal }}</strong>/meal</span>
+              <a routerLink="/create-plan" class="plan-select">Select →</a>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ===== Testimonials ===== -->
+<section class="section reviews">
+  <div class="container">
+    <div class="section-head center">
+      <span class="eyebrow">Real stories</span>
+      <h2>Loved across the UAE.</h2>
+    </div>
+    <div class="reviews-grid">
+      @for (t of testimonials; track t.name) {
+        <figure class="review-card">
+          <div class="stars">{{ '★'.repeat(t.stars) }}</div>
+          <blockquote>"{{ t.quote }}"</blockquote>
+          <figcaption>
+            <span class="review-avatar">{{ t.name.charAt(0) }}</span>
+            <span class="review-who">
+              <strong>{{ t.name }}</strong>
+              <small>{{ t.location }} · <span class="text-amber">{{ t.plan }}</span></small>
+            </span>
+          </figcaption>
+        </figure>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ===== Final CTA ===== -->
+<section class="cta-band">
+  <div class="container center">
+    <h2>Start eating better<br /><span class="text-amber">this week.</span></h2>
+    <p>Set up your plan in under 5 minutes. Our kitchen needs two days' notice, so your first
+      delivery can land the day after next.</p>
+    <a routerLink="/create-plan" class="btn btn-primary">Create My Plan · Free Delivery</a>
+  </div>
+</section>

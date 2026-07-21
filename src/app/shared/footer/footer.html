@@ -1,0 +1,45 @@
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <a routerLink="/" class="brand">
+        <span class="brand-word">tayn</span><span class="brand-dot"></span>
+      </a>
+      <p class="footer-blurb">
+        Premium meal plans crafted for your goals. Delivered fresh across the UAE every morning.
+      </p>
+    </div>
+
+    <div class="footer-col">
+      <h4>Navigate</h4>
+      <a routerLink="/">Home</a>
+      <a routerLink="/menu">Menu</a>
+      <a routerLink="/create-plan">Create My Plan</a>
+      <a routerLink="/subscription">My Subscription</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <a href="mailto:hello@tayn.ae">hello&#64;tayn.ae</a>
+      <a href="tel:+97140000000">+971 4 000 0000</a>
+      <p class="footer-addr">Business Bay Tower B,<br />Dubai, UAE</p>
+    </div>
+
+    <div class="footer-col">
+      <h4>We deliver to</h4>
+      <div class="chips">
+        @for (e of emirates; track e) {
+          <span class="chip">{{ e }}</span>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <span>© {{ year }} Tayn Food Tech LLC. All rights reserved.</span>
+    <span class="legal">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Cookie Policy</a>
+    </span>
+  </div>
+</footer>

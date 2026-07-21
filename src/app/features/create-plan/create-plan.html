@@ -1,0 +1,260 @@
+<section class="wizard">
+  <div class="container">
+    @if (checkoutCancelled) {
+      <p class="checkout-cancelled">
+        Checkout was cancelled and nothing has been charged. Your selection is below whenever you're ready.
+      </p>
+    }
+
+    <ol class="stepper">
+      @for (label of steps; track label; let i = $index) {
+        <li class="step-item" [class.done]="i < step()" [class.active]="i === step()">
+          <span class="step-dot">@if (i < step()) { ✓ } @else { {{ i + 1 }} }</span>
+          <span class="step-label">{{ label }}</span>
+          @if (i < steps.length - 1) { <span class="step-line"></span> }
+        </li>
+      }
+    </ol>
+
+    <div class="wizard-grid">
+      <div class="wizard-panel card">
+        @switch (step()) {
+
+          <!-- STEP 1 · Choose Plan -->
+          @case (0) {
+            <h2>Choose your plan</h2>
+            <p class="panel-sub">Select the meal program that matches your goals. You pay per meal, and you pick your days next.</p>
+            <div class="plan-choices">
+              @for (c of cards(); track c.slug) {
+                <button type="button" class="choice-card" [class.selected]="draft().categorySlug === c.slug"
+                        (click)="selectCategory(c.slug)">
+                  <span class="choice-check" [class.on]="draft().categorySlug === c.slug">
+                    @if (draft().categorySlug === c.slug) { ✓ }
+                  </span>
+                  <h3>{{ c.name }}</h3>
+                  <p class="choice-desc">{{ c.description }}</p>
+                  <div class="choice-macros">
+                    <span class="pill">{{ c.kcalRange }}</span>
+                    <span class="pill">{{ c.proteinRange }}</span>
+                  </div>
+                  <span class="choice-price"><strong>AED {{ c.pricePerMeal }}</strong>/meal</span>
+                </button>
+              } @empty {
+                <p class="text-muted">Loading plans…</p>
+              }
+            </div>
+          }
+
+          <!-- STEP 2 · What's Included -->
+          @case (1) {
+            <h2>What's included in {{ selectedCard()?.name }}</h2>
+            <p class="panel-sub">Everything you get with every delivery.</p>
+            <ul class="feature-list">
+              @for (f of features; track f.title) {
+                <li>
+                  <span class="feature-check">{{ f.icon }}</span>
+                  <span class="feature-copy"><strong>{{ f.title }}</strong><small>{{ f.text }}</small></span>
+                </li>
+              }
+            </ul>
+            @if (selectedCard(); as c) {
+              <div class="feature-note">
+                <strong>{{ c.name }} Plan</strong> · {{ c.kcalRange }} · {{ c.proteinRange }} daily ·
+                <strong>AED {{ c.pricePerMeal }}</strong> per meal
+              </div>
+            }
+          }
+
+          <!-- STEP 3 · Start Date -->
+          @case (2) {
+            <h2>When do you want to start?</h2>
+            <p class="panel-sub">
+              Our kitchen needs {{ leadDays }} days' notice, so the earliest start is
+              {{ calendar()[0].iso | date: 'EEEE, d MMMM' }}. Deliveries arrive by 7am.
+            </p>
+            <div class="date-grid">
+              @for (d of calendar(); track d.iso) {
+                <button type="button" class="date-cell" [class.selected]="draft().startDate === d.iso"
+                        (click)="selectDate(d.iso)">
+                  <span class="date-weekday">{{ d.weekday }}</span>
+                  <strong class="date-day">{{ d.day }}</strong>
+                  <span class="date-month">{{ d.month }}</span>
+                  @if (d.earliest) { <span class="date-earliest">Earliest</span> }
+                </button>
+              }
+            </div>
+            @if (price(); as pr) {
+              @if (pr.firstDeliveryDate) {
+                <p class="panel-note">
+                  Your first delivery lands on
+                  <strong>{{ pr.firstDeliveryDate | date: 'EEEE, d MMMM' }}</strong>,
+                  the first day you've chosen on or after that date.
+                </p>
+              }
+            }
+          }
+
+          <!-- STEP 4 · Delivery Days -->
+          @case (3) {
+            <h2>Select delivery days</h2>
+            <p class="panel-sub">
+              One meal per day you pick. A billing cycle is {{ cycleDays }} days, exactly
+              {{ cycleWeeks }} weeks, so every cycle holds four of each day you choose.
+            </p>
+            <div class="days-row">
+              @for (d of weekdays; track d.code) {
+                <button type="button" class="day-toggle" [class.on]="isDay(d.code)"
+                        (click)="toggleDay(d.code)">{{ d.label }}</button>
+              }
+            </div>
+            @if (price(); as pr) {
+              <div class="days-summary">
+                <span>
+                  <strong>{{ pr.mealsPerWeek }} {{ pr.mealsPerWeek === 1 ? 'day' : 'days' }}/week</strong>
+                  · {{ selectedDayLabels }} · {{ pr.mealsPerCycle }} meals per cycle
+                </span>
+                <strong>AED {{ pr.pricePerCycle }}<small>/{{ cycleWeeks }} weeks</small></strong>
+              </div>
+            }
+          }
+
+          <!-- STEP 5 · Your Details -->
+          @case (4) {
+            <h2>Your details</h2>
+            @if (auth.isLoggedIn()) {
+              <p class="panel-sub">You're signed in, so we'll use the address on your account.</p>
+            } @else {
+              <p class="panel-sub">Set up your Tayn account and delivery address.</p>
+              <form class="details-form" [formGroup]="detailsForm">
+                <div class="form-2col">
+                  <div class="field"><label>Full name</label>
+                    <input class="input" formControlName="fullName" placeholder="Layla Al Hashimi" /></div>
+                  <div class="field"><label>Email address</label>
+                    <input class="input" type="email" formControlName="email" placeholder="layla@email.com" /></div>
+                </div>
+                <div class="form-2col">
+                  <div class="field"><label>Phone number</label>
+                    <div class="phone-input"><span class="phone-prefix">+971</span>
+                      <input class="input" formControlName="phone" placeholder="50 123 4567" /></div></div>
+                  <div class="field"><label>Emirate</label>
+                    <select class="input" formControlName="emirate">
+                      @for (e of emirates; track e) { <option [value]="e">{{ e }}</option> }
+                    </select></div>
+                </div>
+                <div class="field"><label>Building / villa / apartment</label>
+                  <input class="input" formControlName="building" placeholder="Apartment 12B, Al Yalayis Building" /></div>
+                <div class="field"><label>Street / area</label>
+                  <input class="input" formControlName="street" placeholder="Jumeirah Lake Towers, JLT" /></div>
+                <div class="field"><label>Dietary notes &amp; allergies (optional)</label>
+                  <textarea class="input" formControlName="dietaryNotes"
+                            placeholder="e.g. no nuts, lactose-free, no pork, extra spicy…"></textarea></div>
+                <div class="form-2col">
+                  <div class="field"><label>Password</label>
+                    <input class="input" type="password" formControlName="password" placeholder="Minimum 8 characters" /></div>
+                  <div class="field"><label>Confirm password</label>
+                    <input class="input" type="password" formControlName="confirmPassword" placeholder="Repeat your password" /></div>
+                </div>
+                @if (detailsForm.errors?.['mismatch'] && detailsForm.get('confirmPassword')?.touched) {
+                  <span class="field-error">Passwords don't match.</span>
+                }
+              </form>
+            }
+          }
+
+          <!-- STEP 6 · Review & Pay -->
+          @case (5) {
+            <h2>Review &amp; Pay</h2>
+            <p class="panel-sub">Check everything looks correct before completing your subscription.</p>
+            <div class="review-box">
+              <div class="review-row"><span>Plan</span><strong>{{ selectedCard()?.name }}</strong></div>
+              @if (price(); as pr) {
+                <div class="review-row"><span>Rate</span><strong>AED {{ pr.pricePerMeal }} per meal</strong></div>
+                <div class="review-row"><span>First Delivery</span>
+                  <strong>{{ (pr.firstDeliveryDate ?? draft().startDate) | date: 'EEEE, d MMMM y' }}</strong></div>
+                <div class="review-row"><span>Delivery Days</span>
+                  <strong>{{ selectedDayLabels }} ({{ pr.mealsPerWeek }}×/week)</strong></div>
+                <div class="review-row"><span>Meals per cycle</span>
+                  <strong>{{ pr.mealsPerCycle }} meals · {{ pr.cycleDays }} days</strong></div>
+                <div class="review-row"><span>Billed</span>
+                  <strong>AED {{ pr.pricePerCycle }} today, then every {{ cycleWeeks }} weeks</strong></div>
+              }
+              @if (!auth.isLoggedIn()) {
+                <div class="review-row"><span>Name</span><strong>{{ draft().fullName }}</strong></div>
+                <div class="review-row"><span>Email</span><strong>{{ draft().email }}</strong></div>
+                <div class="review-row"><span>Phone</span><strong>+971 {{ draft().phone }}</strong></div>
+                <div class="review-row"><span>Delivery Address</span><strong>{{ draft().building }}, {{ draft().street }}, {{ draft().emirate }}</strong></div>
+              }
+            </div>
+
+            <div class="payment-box">
+              <span class="card-label">Payment</span>
+              <p class="text-muted">
+                Clicking <strong>Confirm &amp; Start Plan</strong> takes you to Stripe's secure
+                checkout to enter your card details.
+                <strong>Your first {{ cycleWeeks }}-week cycle is charged in full now</strong>,
+                before any deliveries. It renews automatically every {{ cycleWeeks }} weeks
+                until you cancel.
+              </p>
+              <p class="secure-note">🔒 Payments are processed by Stripe. Your card details never touch our servers.</p>
+            </div>
+
+            @if (checkoutError()) {
+              <p class="field-error center">{{ checkoutError() }}</p>
+            }
+            <button type="button" class="btn btn-primary btn-block confirm-btn" [disabled]="submitting()" (click)="confirm()">
+              @if (price(); as pr) { Confirm &amp; Start Plan · AED {{ pr.pricePerCycle }}/{{ cycleWeeks }} weeks }
+              @else { Confirm &amp; Start Plan }
+            </button>
+          }
+        }
+
+        @if (step() < steps.length - 1) {
+          <div class="panel-nav">
+            @if (step() === 0) {
+              <button type="button" class="nav-back" (click)="goHome()">← Back to Home</button>
+            } @else {
+              <button type="button" class="nav-back" (click)="back()">← Back</button>
+            }
+            <button type="button" class="btn btn-primary" [disabled]="!canContinue()" (click)="continue()">Continue →</button>
+          </div>
+        }
+      </div>
+
+      <!-- Order summary -->
+      <aside class="summary card">
+        <span class="card-label">Order summary</span>
+        <div class="summary-div"></div>
+        @if (selectedCard(); as c) {
+          <div class="summary-plan">
+            <h3>{{ c.name }}</h3>
+            <small>{{ c.kcalRange }} · {{ c.proteinRange }}</small>
+          </div>
+          @if (price(); as pr) {
+            <div class="summary-line"><span>Price per meal</span><strong>AED {{ pr.pricePerMeal }}</strong></div>
+            <div class="summary-line"><span>Delivery days</span><strong>{{ pr.mealsPerWeek }}/week</strong></div>
+            <div class="summary-line"><span>Cycle length</span><strong>{{ pr.cycleDays }} days</strong></div>
+            <div class="summary-line"><span>Meals per cycle</span><strong>{{ pr.mealsPerCycle }}</strong></div>
+            @if (pr.firstDeliveryDate) {
+              <div class="summary-line"><span>First delivery</span><strong>{{ pr.firstDeliveryDate | date: 'd MMM' }}</strong></div>
+            }
+            <div class="summary-div"></div>
+            <div class="summary-line">
+              <span>{{ pr.mealsPerCycle }} × AED {{ pr.pricePerMeal }}</span>
+              <strong>AED {{ pr.pricePerCycle }}</strong>
+            </div>
+            <div class="summary-total">
+              <span class="card-label">Total</span>
+              <strong>AED {{ pr.pricePerCycle }}</strong>
+              <span class="total-suffix">every {{ cycleWeeks }} weeks</span>
+            </div>
+          }
+        } @else {
+          <p class="text-muted summary-empty">Select a plan to see your price.</p>
+        }
+        <div class="summary-badge">
+          Free delivery included. Same price every cycle, with no partial periods and no hidden fees.
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
